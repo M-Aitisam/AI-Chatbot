@@ -1,0 +1,49 @@
+{
+  "deadlines": {
+    "undergraduate": "2023-12-15",
+    "graduate": "2023-11-30",
+    "phd": "2023-10-31",
+    "scholarship": "2023-09-15"
+  },
+  "documents": {
+    "undergraduate": [
+      "High school transcripts",
+      "Standardized test scores",
+      "Personal statement",
+      "Letters of recommendation"
+    ],
+    "graduate": [
+      "Bachelor's degree transcripts",
+      "GRE/GMAT scores",
+      "Statement of purpose",
+      "Letters of recommendation"
+    ],
+    "phd": [
+      "Master's degree transcripts",
+      "Research proposal",
+      "Publications (if any)",
+      "Letters of recommendation"
+    ]
+  },
+  "fees": {
+    "undergraduate": {
+      "application_fee": 50,
+      "tuition_deposit": 500
+    },
+    "graduate": {
+      "application_fee": 75,
+      "tuition_deposit": 750
+    },
+    "phd": {
+      "application_fee": 100,
+      "tuition_deposit": 0
+    }
+  },
+  "faqs": {
+    "application_process": "The application process involves submitting an online form, required documents, and paying the application fee. You'll receive a confirmation email once submitted.",
+    "visa_requirements": "International students need to provide proof of financial support, acceptance letter, and valid passport to apply for a student visa.",
+    "housing_options": "We offer on-campus dormitories and can provide information about off-campus housing options.",
+    "contact": "You can reach the admissions office at admissions@university.edu or call +1 (555) 123-4567.",
+    "upload_help": "You can upload documents through our portal after creating an account. Accepted formats are PDF, JPG, and PNG."
+  }
+}
