@@ -139,3 +139,15 @@
 2025-05-11 21:55:38 - 127.0.0.1 - - [11/May/2025 21:55:38] "POST /api/upload HTTP/1.1" 200 -
 2025-05-11 21:55:51 - User user_2nwhfe5rz: tell  em this document explain me inside document
 2025-05-11 21:55:51 - 127.0.0.1 - - [11/May/2025 21:55:51] "POST /api/chat HTTP/1.1" 200 -
+2025-05-11 22:07:40 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-05-11 22:07:40 - [33mPress CTRL+C to quit[0m
+2025-05-11 22:07:40 -  * Restarting with watchdog (windowsapi)
+2025-05-11 22:07:51 -  * Debugger is active!
+2025-05-11 22:07:51 -  * Debugger PIN: 938-877-314
+2025-05-11 22:08:16 - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-05-11 22:08:16 - [33mPress CTRL+C to quit[0m
+2025-05-11 22:08:16 -  * Restarting with watchdog (windowsapi)
+2025-05-11 22:08:30 -  * Debugger is active!
+2025-05-11 22:08:30 -  * Debugger PIN: 938-877-314

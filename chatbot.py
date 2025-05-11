@@ -1,23 +1,22 @@
-from flask import Flask, render_template, request, jsonify
+import streamlit as st
 import time
 import random
 from datetime import datetime, timedelta
 import spacy
-from werkzeug.utils import secure_filename
 import os
 import logging
-from threading import Thread
 import json
+from PIL import Image
 
 # Load English language model for NLP
 nlp = spacy.load("en_core_web_sm")
 
-app = Flask(__name__)
-
-# Configuration
-app.config['UPLOAD_FOLDER'] = 'uploads/'
-app.config['ALLOWED_EXTENSIONS'] = {'pdf', 'jpg', 'jpeg', 'png'}
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+# Set page config
+st.set_page_config(
+    page_title="University Admission Chatbot",
+    page_icon="🎓",
+    layout="wide"
+)
 
 class EnhancedAdmissionChatbot:
     def __init__(self):
@@ -35,7 +34,7 @@ class EnhancedAdmissionChatbot:
                 "Could you rephrase that? I specialize in university admission queries.",
                 "I'm not sure I follow. I can assist with admission-related questions."
             ],
-            'upload_help': "You can upload documents like transcripts, recommendation letters, or your CV by clicking the 'Upload File' button.",
+            'upload_help': "You can upload documents like transcripts, recommendation letters, or your CV using the file uploader below.",
             'file_types': "I accept PDF, JPG, and PNG files for uploads."
         }
         
@@ -257,15 +256,13 @@ class EnhancedAdmissionChatbot:
         self.user_sessions[user_id]['messages'].append(query)
     
     def allowed_file(self, filename):
+        allowed_extensions = {'pdf', 'jpg', 'jpeg', 'png'}
         return '.' in filename and \
-               filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
+               filename.rsplit('.', 1)[1].lower() in allowed_extensions
     
     def handle_file_upload(self, user_id, file):
-        if file and self.allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], f"{user_id}_{filename}")
-            file.save(filepath)
-            
+        if file and self.allowed_file(file.name):
+            filename = file.name
             if user_id not in self.user_sessions:
                 self.user_sessions[user_id] = {'documents': []}
             self.user_sessions[user_id]['documents'].append(filename)
@@ -276,41 +273,107 @@ class EnhancedAdmissionChatbot:
 # Initialize chatbot
 chatbot = EnhancedAdmissionChatbot()
 
-@app.route('/')
-def home():
-    return render_template('chatbot.html')
+# Streamlit UI
+def main():
+    # Custom CSS for the chat interface
+    st.markdown("""
+    <style>
+        .chat-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            margin-bottom: 20px;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin: 5px 0;
+            text-align: right;
+            margin-left: 20%;
+        }
+        .bot-message {
+            background-color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin: 5px 0;
+            text-align: left;
+            margin-right: 20%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .stTextInput>div>div>input {
+            border-radius: 20px;
+            padding: 10px 15px;
+        }
+        .stButton>button {
+            border-radius: 20px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
-@app.route('/api/chat', methods=['POST'])
-def chat():
-    data = request.json
-    user_id = data.get('user_id', 'guest')
-    message = data.get('message', '')
-    
-    try:
-        response = chatbot.get_response(user_id, message)
-        return jsonify({
-            'response': response,
-            'status': 'success'
-        })
-    except Exception as e:
-        return jsonify({
-            'response': "Sorry, I encountered an error processing your request.",
-            'status': 'error'
-        })
+    st.title("🎓 University Admission Chatbot")
+    st.markdown("Ask me anything about university admissions, deadlines, required documents, or fees.")
 
-@app.route('/api/upload', methods=['POST'])
-def upload_file():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'})
-    
-    file = request.files['file']
-    user_id = request.form.get('user_id', 'guest')
-    
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'})
-    
-    result = chatbot.handle_file_upload(user_id, file)
-    return jsonify({'message': result})
+    # Initialize session state
+    if 'chat_history' not in st.session_state:
+        st.session_state.chat_history = []
+    if 'user_id' not in st.session_state:
+        st.session_state.user_id = str(random.randint(1000, 9999))
 
-if __name__ == '__main__':
-    app.run(debug=True)
+    # Display chat history
+    with st.container():
+        st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+        
+        # Initial greeting
+        if len(st.session_state.chat_history) == 0:
+            greeting = random.choice(chatbot.general_responses['greeting'])
+            st.session_state.chat_history.append(("bot", greeting))
+        
+        for sender, message in st.session_state.chat_history:
+            if sender == "user":
+                st.markdown(f'<div class="user-message">You: {message}</div>', unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div class="bot-message">Bot: {message}</div>', unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # User input
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        user_input = st.text_input("Type your message:", key="input", placeholder="Ask about admission requirements...")
+    with col2:
+        send_button = st.button("Send")
+
+    # Handle send button or enter key
+    if send_button or user_input:
+        if user_input:
+            # Add user message to chat history
+            st.session_state.chat_history.append(("user", user_input))
+            
+            # Get bot response
+            bot_response = chatbot.get_response(st.session_state.user_id, user_input)
+            
+            # Add bot response to chat history
+            st.session_state.chat_history.append(("bot", bot_response))
+            
+            # Clear input
+            st.session_state.input = ""
+            
+            # Rerun to update the chat display
+            st.rerun()
+
+    # File uploader
+    st.markdown("### Upload Documents")
+    uploaded_file = st.file_uploader("Choose a file (PDF, JPG, PNG)", type=['pdf', 'jpg', 'jpeg', 'png'])
+    if uploaded_file is not None:
+        result = chatbot.handle_file_upload(st.session_state.user_id, uploaded_file)
+        st.session_state.chat_history.append(("bot", result))
+        st.rerun()
+
+if __name__ == "__main__":
+    main()cd .
